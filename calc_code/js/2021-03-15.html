@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字节面试</title>
+</head>
+<body>
+    <script>
+        // 对输入的字符串，去除其中的字符'b'以及连续出现的'a'和'c' 
+      // 例如： 'aacbd' -> 'ad' 'aabcd' -> 'ad' 'aaabbccc' -> ''a" 不允许使用类似string.replace函数以及正则。
+      // 要求时间、空间复杂度尽量优化
+
+      function match(str) {
+          let newStr = '';
+          let ac = [];
+        for (let i = 0; i < str.length; i++) {
+            if (str[i] === 'b') continue;
+            if (str[i] == 'a') {
+                // ac.push(str[i]);
+                // if (str[i + 1] === 'c')
+                for (let j = i; j < str.length - i; j++) {
+                    // if (str[j] === 'a')
+                }
+            }
+            // if (str[i] === 'a' && str[i + 1] && str[i + 1] === 'a') ac
+            // if (str[i] === 'a' && str[i + 1] && str[i + 1] === 'c') continue;
+            // if (str[i] === 'a')
+            // if (str[i] === 'c' && str[i + 1] && str[i + 1] === 'a') continue;
+            newStr += str[i];
+        }
+        return newStr;
+      }
+    </script>
+</body>
+</html>

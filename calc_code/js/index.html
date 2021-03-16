@@ -1,0 +1,112 @@
+<script>
+    /**
+ * @param {string} s
+ * @param {string} t
+ * @return {boolean}
+ */
+var isAnagram = function(s, t) {
+    const list = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+    const obj = {};
+    for (let i = 0; i < s.length; i++) {
+        if (list.includes(s[i])) {
+            if (obj[s[i]]) {
+                obj[s[i]] += 1;
+            } else {
+                obj[s[i]] = 1;
+            }
+        }
+    }
+    console.log(obj)
+    for (let i = 0; i < t.length; i++) {
+        if (list.includes(t[i])) {
+            if (obj[t[i]]) {
+                obj[t[i]] -= 1;
+            } else {
+                obj[t[i]] = -1;
+            }
+        }
+    }
+    console.log(obj, '====', Object.values(obj).filter(Boolean))
+    return Object.values(obj).filter(Boolean).length <= 0;
+};
+
+
+
+
+
+
+function ListNode(val, next) {
+      this.val = (val===undefined ? 0 : val)
+      this.next = (next===undefined ? null : next)
+  }
+
+//   const myReverse = (head, tail) => {
+//     let prev = tail.next;
+//     let p = head;
+//     while (prev !== tail) {
+//         const nex = p.next;
+//         p.next = prev;
+//         prev = p;
+//         p = nex;
+//     }
+//     return [tail, head];
+// }
+// var reverseKGroup = function(head, k) {
+//     const hair = new ListNode(0);
+//     hair.next = head;
+//     let pre = hair;
+
+//     while (head) {
+//         let tail = pre;
+//         // 查看剩余部分长度是否大于等于 k
+//         for (let i = 0; i < k; ++i) {
+//             tail = tail.next;
+//             if (!tail) {
+//                 return hair.next;
+//             }
+//         }
+//         const nex = tail.next;
+//         [head, tail] = myReverse(head, tail);
+//         // 把子链表重新接回原链表
+//         pre.next = head;
+//         tail.next = nex;
+//         pre = tail;
+//         head = tail.next;
+//     }
+//     return hair.next;
+// };
+
+
+/**
+ * Definition for singly-linked list.
+ * function ListNode(val, next) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.next = (next===undefined ? null : next)
+ * }
+ */
+/**
+ * @param {ListNode} head
+ * @return {ListNode}
+ */
+ var swapPairs = function(head) {
+    if (head === null || head.next === null) {
+        return head;
+    }
+    const next = head.next;
+    head.next = swapPairs(next.next);
+    next.next = head;
+    return next;
+};
+
+function sleep() {
+    return new Promise((resolve) => {
+        setTimeout(resolve, 3000);
+    })
+}
+
+async function go() {
+    await sleep();
+    console.log('000000')
+}
+
+</script>
