@@ -1,0 +1,66 @@
+<script>
+    /**
+     * 不使用加法运算符实现两数求和
+     *  a + b = ( a ^ b ) + ((a & b) << 1)
+     */
+    function sum(a, b) {
+        if (a === 0) return b;
+        if (b === 0) return a;
+        const new1 = a ^ b;
+        const new2 = (a & b) << 1;
+        return sum(new1, new2);
+    }
+
+    // 排序常用方法
+    function checkArray(arr) {
+        return Array.isArray(arr);
+    }
+
+    function swap(arr, indexLeft, indexRight) {
+        const temp = arr[indexLeft];
+        arr[indexLeft] = arr[indexRight];
+        arr[indexRight] = temp;
+    }
+
+    /** 
+     * 冒泡排序
+     */
+
+    function bubble(arr) {
+        if (!checkArray(arr)) return [];
+        for (let i = arr.length; i > 0; i--) {
+            for (let j = 0; j < i; j++) {
+                if (arr[j] > arr[j + 1]) swap(arr, j, j + 1);
+            }
+        }
+        return arr;
+    }
+
+    /** 
+     * 插入排序
+     */
+    function insertion(arr) {
+        if (!checkArray(arr)) return [];
+        for (let i = 1; i < arr.length; i++) {
+            for (let j = i - 1; j >= 0 && arr[j] > arr[j + 1]; j--) {
+                swap(arr, j, j + 1);
+            }
+        }
+        return arr;
+    }
+
+    /** 
+     * 选择排序
+     */
+    function selection(arr) {
+        if (!checkArray(arr)) return [];
+        for (let i = 0; i < arr.length; i++) {
+            let minIndex = i;
+            for (let j = i + 1; j < arr.length; j++) {
+                minIndex = arr[minIndex] > arr[j] ? j : minIndex;
+            }
+            swap(arr, i, minIndex);
+        }
+        return arr;
+    }
+</script>
