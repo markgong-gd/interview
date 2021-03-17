@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>内存泄漏</title>
+</head>
+
+<body>
+    <script>
+        function fn() {
+            let num = 0;
+            return function () {
+                num++;
+                console.log(num);
+            }
+        }
+        fn()();
+        fn()();
+        fn()();
+        const f = fn();
+        f();
+        f();
+        f();
+        for (let i = 0; i < 3; i++) {
+            f();
+        }
+    </script>
+</body>
+
+</html>
