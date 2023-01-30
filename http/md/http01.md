@@ -718,5 +718,110 @@ rsa加密，拿到服务端公钥后，利用该公钥加密客户端生成pre-m
 
 - 配置HTTPS
 
+```sh
+listen                443 ssl;
+
+ssl_certificate       xxx_rsa.crt;  #rsa2048 cert
+ssl_certificate_key   xxx_rsa.key;  #rsa2048 private key
+
+ssl_certificate       xxx_ecc.crt;  #ecdsa cert
+ssl_certificate_key   xxx_ecc.key;  #ecdsa private ke
+
+
+ssl_protocols               TLSv1.2 TLSv1.3;
+
+ssl_session_timeout         5m;
+ssl_session_tickets         on;
+ssl_session_ticket_key      ticket.key;
+
+
+ssl_prefer_server_ciphers   on;
+
+ssl_ciphers   ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-CHACHA20-POLY1305:ECDHE+AES128:!MD5:!SHA1;
+```
+
+#### 5.1 HTTP/2特性概览
+
+> 兼容 HTTP/1
+
+> 头部压缩
+
+HTTP/2没有使用传统得压缩算法，专门开发“HPACK”算法。
+
+> 二进制格式
+
+相比HTTP/1，不存在大小写、回车、换行等歧义问题，体积小，速度快。
+
+将数据分成一小块一小块传输。
+HEADERS Frame：头部帧，存放头数据。
+DATA Frame：主体帧，存放实体数据。
+
+![](https://static001.geekbang.org/resource/image/8f/96/8fe2cbd57410299a1a36d7eb105ea896.png?wh=1236*366)
+
+> 虚拟得“流”
+
+1. HTTP/2传输的是有**顺序的数据帧**，每个帧数据都分配唯一ID，根据这些ID将数据组装起来就是HTTP/1报文。
+
+2. 正是传输的数据帧，然后拼接，HTTP/2就可以在一个TCP连接上**同时发送多个数据帧**，这就是常说的“**多路复用**”。
+
+3. 打破传统的“**请求-应答**”模式，服务器不在完全被动地响应请求，也可以新建“流”主动向客户端发送。
+
+> 强化安全
+
+出于兼容，HTTP/2延续HTTP/1的“明文”特点，可以使用明文传输，不强制使用加密通信，不过格式还是二进制。
+
+但现今主流浏览器Chrome、Firefox都公开宣布**只支持**加密的HTTP2。所以现今互联网所见的HTTP/2都是使用https，且TLS必须是**1.2+**版本。
+
+HTTP/2协议定义了两个字符串标识符：**h2**表示加密的HTTP/2，**h2c**表示明文的HTTP/2.
+
+> 协议栈
+
+![](https://static001.geekbang.org/resource/image/83/1a/83c9f0ecad361ba8ef8f3b73d6872f1a.png?wh=1227*632)
+
+#### HTTP/2内核剖析
+
+> 连接前言
+
+HTTP/2是基于TLS，任然会有TCP握手、TLS握手。在TLS握手成功后，客户端必须发送一个“**连接前言**”，用来确认建立HTTP/2连接。
+
+```sh
+    # 请求方法是特别注册的一个关键词“PRI”
+    PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n
+```
+
+> 头部压缩
+
+语义上兼容HTTP/1，所以报文还是有“Header + Body”组成，但在发送前必须要用“**HPACK**”压缩头部数据。
+
+“HPACK”算法是专门压缩HTTP头部定制的算法，它是一个“有状态”的算法，需要客户端和服务器**各自**维护一份“索引表”，压缩和解压缩就是查表和更新表的操作。
+
+为了方便管理和压缩，HTTP/2废除了起始行概念，把请求方法、URI、状态码等统一转换成头字段的形式（key-value），这类字段被称为**伪头字段**，名字前面加上一个“ **:** ”，对照表信息，每次传输只需要传输表中字段所对应**索引Index**，大大减小传输体积。
+![](https://static001.geekbang.org/resource/image/76/0c/769dcf953ddafc4573a0b4c3f0321f0c.png?wh=1142*719)
+
+> 二进制帧
+
+报文头只有9个字节。
+
+![](https://static001.geekbang.org/resource/image/61/e3/615b49f9d13de718a34b9b98359066e3.png?wh=1142*575)
+![](https://static001.geekbang.org/resource/image/57/03/57b0d1814567e6317c8de1e3c04b7503.png?wh=1142*585)
+
+- 帧长度（Length）
+- 帧类型（TYPE）：可分为数据帧（DATA、HEADERS）、控制帧（SETTINGS、PING、PRIORITY）
+- 标志位（Flags）：可以保存8个标志位，携带简单的控制信息。常用的有**END_HEADERS**(头数据结束)，**END_STREAM**（单方向数据发送结束）.
+- 流标识符：存放“流”的ID，根据它按顺序组装乱序的帧数据。
+
+> 流与多路复用
+
+一个HTTP/2的流等同于HTTP/1里的“请求-应答”。
+
+流是可并发的，一个HTTP/2连接上可以同时发出多个流传输数据，也就是并发多请求，实现“多路复用”。
+
+> 流状态转换
+
+![](https://static001.geekbang.org/resource/image/d3/b4/d389ac436d8100406a4a488a69563cb4.png?wh=1142*941)
+
+idle => open => half closed => closed
+未开启流 => 客户端发送数据 => 服务端响应数据 => 关闭流（未关闭连接）
+
 
 
